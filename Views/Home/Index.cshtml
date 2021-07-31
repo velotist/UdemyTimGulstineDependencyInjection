@@ -1,5 +1,18 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model List<UdemyTimGulestineDependencyInjection.Controllers.Customer>
 
-<div></div>
+<h2>Customers</h2>
+
+@foreach(var customer in Model)
+{
+    <div class="row">
+        <div class="col-md-1">
+            @customer.Id
+        </div>
+        <div class="col-md-2">
+            @customer.Name
+        </div>
+        <div class="col-md-3">
+            @customer.Address
+        </div>
+    </div>
+}
