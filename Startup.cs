@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UdemyTimGulstineDependencyInjection.Controllers;
 
-namespace UdemyTimGulestineDependencyInjection
+namespace UdemyTimGulstineDependencyInjection
 {
     public class Startup
     {
@@ -25,6 +26,11 @@ namespace UdemyTimGulestineDependencyInjection
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            var configurationSettings = Configuration.GetSection("ConfigurationSettings").Get<ConfigurationSettings>();
+            services.AddSingleton<IConfigurationSettings>(configurationSettings);
+            services.AddTransient<IRepository<Customer>, Repository<Customer>>();
+            services.AddTransient<ICustomerService, CustomerService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
