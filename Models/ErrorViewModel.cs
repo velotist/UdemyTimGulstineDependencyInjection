@@ -1,5 +1,3 @@
-using System;
-
 namespace UdemyTimGulestineDependencyInjection.Models
 {
     public class ErrorViewModel
