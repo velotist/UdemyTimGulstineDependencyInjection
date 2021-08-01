@@ -1,17 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc;
 
-namespace UdemyTimGulestineDependencyInjection.Controllers
+namespace UdemyTimGulstineDependencyInjection.Controllers
 {
     public class HomeController : Controller
     {
+        private ICustomerService CustomerService { get; set; }
+
+        public HomeController(ICustomerService customerService)
+        {
+            CustomerService = customerService;
+        }
+
         public IActionResult Index()
         {
-            CustomerService customerService = new CustomerService();
-            IEnumerable<Customer> customers = customerService.GetCustomers();
+            IEnumerable<Customer> customers = CustomerService.GetCustomers();
 
             return View(customers);
         }
@@ -28,7 +34,7 @@ namespace UdemyTimGulestineDependencyInjection.Controllers
     {
         public static Customer GetCustomers(SqlDataReader reader)
         {
-            Customer customer = new Customer
+            var customer = new Customer
             {
                 Id = reader.GetInt32(0),
                 Name = reader.GetString(1),
@@ -40,12 +46,35 @@ namespace UdemyTimGulestineDependencyInjection.Controllers
         }
     }
 
-    public class Repository<T>
+    public class ConfigurationSettings : IConfigurationSettings
     {
+        public string ConnectionString { get; set; }
+    }
+
+    public interface IConfigurationSettings
+    {
+        string ConnectionString { get; set; }
+    }
+
+    public interface IRepository<T>
+    {
+        IConfigurationSettings ConfigurationSettings { get; set; }
+        IEnumerable<T> Get(string query, Func<SqlDataReader, T> mappingFunction);
+    }
+
+    public class Repository<T> : IRepository<T>
+    {
+        public IConfigurationSettings ConfigurationSettings { get; set; }
+        
+        public Repository(IConfigurationSettings configurationSettings)
+        {
+            ConfigurationSettings = configurationSettings;
+        }
+
         public IEnumerable<T> Get(string commandText, Func<SqlDataReader, T> mappingFunction)
         {
-            List<T> list = new List<T>();
-            using (SqlConnection connection = new SqlConnection("Server=(localdb)\\mssqllocaldb;Database=Accounting;Trusted_Connection=True;MultipleActiveResultSets=False"))
+            var list = new List<T>();
+            using (SqlConnection connection = new SqlConnection(ConfigurationSettings.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand cmd = new SqlCommand(commandText, connection))
@@ -66,13 +95,23 @@ namespace UdemyTimGulestineDependencyInjection.Controllers
         }
     }
 
-    public class CustomerService
+    public interface ICustomerService
     {
+        IEnumerable<Customer> GetCustomers();
+    }
+
+    public class CustomerService : ICustomerService
+    {
+        private readonly IRepository<Customer> _customerRepository;
+
+        public CustomerService(IRepository<Customer> customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
         public IEnumerable<Customer> GetCustomers()
         {
-            Repository<Customer> customerRepository = new Repository<Customer>();
-
-            return customerRepository.Get("SELECT Id, Name, Address FROM Customers", Mappers.GetCustomers);
+            return _customerRepository.Get("SELECT Id, Name, Address FROM Customers", Mappers.GetCustomers);
         }
     }
 }

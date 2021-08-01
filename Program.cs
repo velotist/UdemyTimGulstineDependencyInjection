@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace UdemyTimGulestineDependencyInjection
+namespace UdemyTimGulstineDependencyInjection
 {
     public class Program
     {
@@ -13,7 +13,7 @@ namespace UdemyTimGulestineDependencyInjection
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost.CreateDefaultBuilder(args)
-.UseStartup<Startup>();
+                .UseStartup<Startup>();
         }
     }
 }

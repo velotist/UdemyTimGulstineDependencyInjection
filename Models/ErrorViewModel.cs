@@ -1,4 +1,4 @@
-namespace UdemyTimGulestineDependencyInjection.Models
+namespace UdemyTimGulstineDependencyInjection.Models
 {
     public class ErrorViewModel
     {
