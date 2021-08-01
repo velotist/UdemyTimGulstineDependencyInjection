@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using UdemyTimGulstineDependencyInjection.Controllers;
 
-namespace UdemyTimGulestineDependencyInjection
+namespace UdemyTimGulstineDependencyInjection
 {
     public class Startup
     {
@@ -31,6 +27,10 @@ namespace UdemyTimGulestineDependencyInjection
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var configurationSettings = Configuration.GetSection("ConfigurationSettings").Get<ConfigurationSettings>();
+            services.AddSingleton<IConfigurationSettings>(configurationSettings);
+            services.AddTransient<IRepository<Customer>, Repository<Customer>>();
+            services.AddTransient<ICustomerService, CustomerService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
