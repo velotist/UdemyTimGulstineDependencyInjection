@@ -82,10 +82,9 @@ namespace UdemyTimGulstineDependencyInjection.Controllers
 
         public IEnumerable<T> Get(string commandText, Func<SqlDataReader, T> mappingFunction)
         {
-            var list = new List<T>();
-
             _logger.LogWarning("An inefficient SELECT statement was used.");
 
+            var list = new List<T>();
             using (SqlConnection connection = new SqlConnection(ConfigurationSettings.ConnectionString))
             {
                 connection.Open();
