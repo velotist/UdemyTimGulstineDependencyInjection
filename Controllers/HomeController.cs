@@ -2,22 +2,28 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace UdemyTimGulstineDependencyInjection.Controllers
 {
     public class HomeController : Controller
     {
         private ICustomerService CustomerService { get; set; }
+        private readonly ILogger _logger;
 
-        public HomeController(ICustomerService customerService)
+        public HomeController(ICustomerService customerService, ILogger<HomeController> logger)
         {
             CustomerService = customerService;
+            _logger = logger;
         }
 
         public IActionResult Index()
         {
             IEnumerable<Customer> customers = CustomerService.GetCustomers();
+
+            _logger.LogWarning($"We only found {customers.Count()} customers.");
 
             return View(customers);
         }
@@ -65,14 +71,19 @@ namespace UdemyTimGulstineDependencyInjection.Controllers
     public class Repository<T> : IRepository<T>
     {
         public IConfigurationSettings ConfigurationSettings { get; set; }
+        private readonly ILogger _logger;
         
-        public Repository(IConfigurationSettings configurationSettings)
+        public Repository(IConfigurationSettings configurationSettings, ILogger<Repository<T>> logger)
         {
             ConfigurationSettings = configurationSettings;
+            _logger = logger;
+            
         }
 
         public IEnumerable<T> Get(string commandText, Func<SqlDataReader, T> mappingFunction)
         {
+            _logger.LogWarning("An inefficient SELECT statement was used.");
+
             var list = new List<T>();
             using (SqlConnection connection = new SqlConnection(ConfigurationSettings.ConnectionString))
             {
