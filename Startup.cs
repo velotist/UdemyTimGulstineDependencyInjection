@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using UdemyTimGulstineDependencyInjection.Controllers;
 
 namespace UdemyTimGulstineDependencyInjection
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IHostingEnvironment environment)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(environment.ContentRootPath)
@@ -42,8 +44,11 @@ namespace UdemyTimGulstineDependencyInjection
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddNLog();
+            NLog.LogManager.LoadConfiguration($"nlog.{env.EnvironmentName}.config");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
